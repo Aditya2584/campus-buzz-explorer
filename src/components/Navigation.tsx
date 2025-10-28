@@ -1,14 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Home, Users, User, LogOut } from "lucide-react";
+import { Calendar, Home, Users, User, UserCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 const Navigation = () => {
   const location = useLocation();
   const [user, setUser] = useState<any>(null);
-  const { toast } = useToast();
   
   const isActive = (path: string) => location.pathname === path;
   
@@ -23,22 +21,6 @@ const Navigation = () => {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error signing out",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
   
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -88,13 +70,15 @@ const Navigation = () => {
           
           {user ? (
             <Button
-              variant="ghost"
+              variant={isActive("/profile") ? "default" : "ghost"}
               size="sm"
-              onClick={handleSignOut}
-              className="ml-2 gap-2"
+              asChild
+              className="ml-2"
             >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <Link to="/profile" className="gap-2">
+                <UserCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
+              </Link>
             </Button>
           ) : (
             <Button

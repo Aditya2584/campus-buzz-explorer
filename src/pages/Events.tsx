@@ -17,6 +17,10 @@ interface Event {
   location: string;
   category: string;
   max_attendees: number;
+  club_id: string | null;
+  clubs?: {
+    name: string;
+  };
 }
 
 interface Registration {
@@ -51,7 +55,12 @@ const Events = () => {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          clubs (
+            name
+          )
+        `)
         .order('date', { ascending: true });
 
       if (error) throw error;
@@ -175,11 +184,18 @@ const Events = () => {
                 className="flex flex-col shadow-[var(--shadow-card)] transition-all hover:shadow-[var(--shadow-hover)]"
               >
                 <CardHeader>
-                  <div className="mb-2 flex items-start justify-between">
-                    <Badge className={getCategoryColor(event.category)}>
-                      {event.category}
-                    </Badge>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge className={getCategoryColor(event.category)}>
+                        {event.category}
+                      </Badge>
+                      {event.club_id && event.clubs && (
+                        <Badge variant="outline" className="bg-primary/5">
+                          {event.clubs.name}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
                       <Users className="h-4 w-4" />
                       <span>{event.max_attendees}</span>
                     </div>
